@@ -143,7 +143,7 @@ def task_dl():
     test_loss, test_acc = model.evaluate(test_inputs, test_targets)
     print(test_loss, test_acc * 100)
 
-    class_names = ['no response', 'response']
+    class_names = ['response', 'no response']
     feature_names = ['age', 'lifestyle', 'zip code', 'family status', 'car', 'sports', 'earnings', 'living area']
 
     # Sample the training set to accelerate analysis
