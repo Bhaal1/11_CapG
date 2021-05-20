@@ -88,11 +88,11 @@ def task_dl():
     # Model generation
     input_size = 8
     output_size = 2
-    hidden_layer_size = 200
-    NUM_EPOCHS = 150
+    hidden_layer_size = 48
+    NUM_EPOCHS = 350
     BATCH_SIZE = 20
     learn_rate = 0.0005
-    early_stopping = tf.keras.callbacks.EarlyStopping(patience=2)
+    early_stopping = tf.keras.callbacks.EarlyStopping(patience=4)
 
     model = tf.keras.Sequential([
         tf.keras.layers.InputLayer(input_shape=input_size),
@@ -133,9 +133,12 @@ def task_dl():
 
     ax2.plot(epoch_count, train_acc, 'r--')
     ax2.plot(epoch_count, val_acc, 'b-')
+    ax2.legend(['Training Acc', 'Test Acc'])
     ax2.set_xlabel('Epoch')
     ax2.set_ylabel('Accuracy')
-    plt.savefig('output/loss_acc.png')
+
+    plt.savefig('output/loss_acc_ips_'+str(input_size)+'_ops_'+str(output_size)+'_hls_'+
+                str(hidden_layer_size)+'_bs_'+str(BATCH_SIZE)+'_lr_'+str(learn_rate)+'.png', bbox_inches = "tight")
     plt.close(fig)
     test_loss, test_acc = model.evaluate(test_inputs, test_targets)
     print(test_loss, test_acc * 100)
@@ -144,7 +147,7 @@ def task_dl():
     feature_names = ['age', 'lifestyle', 'zip code', 'family status', 'car', 'sports', 'earnings', 'living area']
 
     # Sample the training set to accelerate analysis
-    df_train_normed_summary = shap.utils.sample(train_inputs, 680)
+    df_train_normed_summary = shap.utils.sample(train_inputs, 250)
 
     # Instantiate an explainer with the model predictions and training data summary
     explainer = shap.KernelExplainer(model.predict, df_train_normed_summary)
@@ -160,24 +163,28 @@ def task_dl():
                            data=np.array(df_train_normed_summary),
                            feature_names=feature_names)
 
+    px = 1 / plt.rcParams['figure.dpi']  # pixel in inches
+
     fig = shap.plots.waterfall(tmp[0], show=False)
-    plt.savefig('output/shap_waterfall.png')
+    plt.savefig('output/shap_waterfall_ips_'+str(input_size)+'_ops_'+str(output_size)+'_hls_'+
+                str(hidden_layer_size)+'_bs_'+str(BATCH_SIZE)+'_lr_'+str(learn_rate)+'.png', bbox_inches = "tight")
     plt.close(fig)
+
     fig = shap.plots.beeswarm(tmp, show=False)
-    plt.savefig('output/gr_diff_plot.png')
+    plt.savefig('output/shap_sum_dot_ips_'+str(input_size)+'_ops_'+str(output_size)+'_hls_'+
+                str(hidden_layer_size)+'_bs_'+str(BATCH_SIZE)+'_lr_'+str(learn_rate)+'.png', bbox_inches = "tight")
     plt.close(fig)
+
     fig = shap.summary_plot(tmp, df_train_normed_summary, show=False, plot_type="bar")
-    plt.savefig('output/shap_sum_bar.png')
-    plt.close(fig)
-    fig = shap.summary_plot(tmp, df_train_normed_summary, show=False, plot_type="dot")
-    plt.savefig('output/shap_sum_dot.png')
+    plt.savefig('output/shap_sum_bar_ips_'+str(input_size)+'_ops_'+str(output_size)+'_hls_'+
+                str(hidden_layer_size)+'_bs_'+str(BATCH_SIZE)+'_lr_'+str(learn_rate)+'.png', bbox_inches = "tight")
     plt.close(fig)
 
     for i in range(df_train_normed_summary.shape[1]):
         feature = str('Feature ' + str(i))
         print(feature)
         fig = shap.dependence_plot(feature, shap_values[0], df_train_normed_summary, show=False)
-        plt.savefig('output/'+str(feature_names[i])+'.png')
+        plt.savefig('output/'+str(feature_names[i])+'.png', bbox_inches = "tight")
         plt.close(fig)
 
 
@@ -206,7 +213,7 @@ def task_ml(train_inputs, train_targets, validation_inputs, validation_targets, 
         print(title)
         print(disp.confusion_matrix)
 
-    plt.savefig('output/cm.png', format="png")
+    plt.savefig('output/cm.png', format="png", bbox_inches = "tight")
 
     viz = dtreeviz(clf,
                    x_data=test_inputs,
