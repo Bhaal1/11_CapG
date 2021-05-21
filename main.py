@@ -127,13 +127,13 @@ def task_dl():
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.plot(epoch_count, training_loss, 'r--')
     ax1.plot(epoch_count, val_loss, 'b-')
-    ax1.legend(['Training Loss', 'Test Loss'])
+    ax1.legend(['Training Loss', 'Validation Loss'])
     ax1.set_xlabel('Epoch')
     ax1.set_ylabel('Loss')
 
     ax2.plot(epoch_count, train_acc, 'r--')
     ax2.plot(epoch_count, val_acc, 'b-')
-    ax2.legend(['Training Acc', 'Test Acc'])
+    ax2.legend(['Training Acc', 'Validation Acc'])
     ax2.set_xlabel('Epoch')
     ax2.set_ylabel('Accuracy')
 
