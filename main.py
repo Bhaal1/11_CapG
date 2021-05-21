@@ -15,8 +15,10 @@ from dtreeviz.trees import *
 
 
 def load_data():
+    # Read data
     df = pd.read_csv('input/Recruiting_Task_InputData.csv')
 
+    # Descriptive data analysis
     if os.path.isfile('output/Recruiting_Task_InputData_PP_report.html'):
         print("File exists")
     else:
@@ -31,6 +33,7 @@ def prepro(df):
     X = raw_csv_data[:, 1:-1]
     y = raw_csv_data[:, -1]
 
+    # Encode inputs
     ohe = OrdinalEncoder()
     ohe.fit(X)
     X_enc = ohe.transform(X)
@@ -53,7 +56,7 @@ def prepro(df):
     samples_count = shuffled_inputs.shape[0]
     train_samples_count = int(0.8*samples_count)
     validation_samples_count = int(0.1 * samples_count)
-    test_sample_count = samples_count - train_samples_count - validation_samples_count
+    # test_sample_count = samples_count - train_samples_count - validation_samples_count
 
     train_inputs = shuffled_inputs[:train_samples_count]
     train_targets = shuffled_targets[:train_samples_count]
@@ -62,8 +65,9 @@ def prepro(df):
     test_inputs = shuffled_inputs[train_samples_count+validation_samples_count:]
     test_targets = shuffled_targets[train_samples_count+validation_samples_count:]
 
-    print(np.sum(train_targets), train_samples_count, np.sum(train_targets)/train_samples_count)
+    # print(np.sum(train_targets), train_samples_count, np.sum(train_targets)/train_samples_count)
 
+    # Save to file
     np.savez('output\data_train',
              inputs=train_inputs, targets=train_targets)
     np.savez('output\data_validation',
@@ -189,18 +193,20 @@ def task_dl():
 
 
 def task_ml(train_inputs, train_targets, validation_inputs, validation_targets, test_inputs, test_targets):
-    class_names = ['no response','response']
+    class_names = ['no response', 'response']
     feature_names = ['age', 'lifestyle', 'zip code', 'family status', 'car', 'sports', 'earnings', 'living area']
     print('Dtree Start: ', datetime.datetime.now())
 
+    # Define and run model
     clf = DecisionTreeClassifier(max_depth=3, random_state=42).fit(train_inputs, train_targets)
-
     y_pred = clf.predict(validation_inputs)
+
+    # Save report
     report = classification_report(validation_targets, y_pred, output_dict=True)
     df = pd.DataFrame(report).transpose()
     df.to_csv('output/report.csv', sep=';')
 
-    # Plot non-normalized confusion matrix
+    # Save non-normalized confusion matrix
     titles_options = [("Confusion matrix, without normalization", None),
                       ("Normalized confusion matrix", 'true')]
     for title, normalize in titles_options:
@@ -213,8 +219,9 @@ def task_ml(train_inputs, train_targets, validation_inputs, validation_targets, 
         print(title)
         print(disp.confusion_matrix)
 
-    plt.savefig('output/cm.png', format="png", bbox_inches = "tight")
+    plt.savefig('output/cm.png', format="png", bbox_inches="tight")
 
+    # Save tree visualization
     viz = dtreeviz(clf,
                    x_data=test_inputs,
                    y_data=test_targets,
@@ -226,9 +233,14 @@ def task_ml(train_inputs, train_targets, validation_inputs, validation_targets, 
 
 
 if __name__ == '__main__':
+    # Load and analysis data
     df = load_data()
+
+    # Pre processing and generation of model inputs
     train_inputs, train_targets, validation_inputs, validation_targets, test_inputs, test_targets = prepro(df)
+
+    # Run dl model
     task_dl()
+
+    # Run ml model
     task_ml(train_inputs, train_targets, validation_inputs, validation_targets, test_inputs, test_targets)
-
-
